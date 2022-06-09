@@ -1,8 +1,7 @@
-import { useEffect, useState } from "react";
+import { memo } from "react";
 import { MovieCard } from "./MovieCard";
-import { api } from "../services/api";
 
-interface MovieProps {
+type MovieProps = {
   imdbID: string;
   Title: string;
   Poster: string;
@@ -11,44 +10,25 @@ interface MovieProps {
     Value: string;
   }>;
   Runtime: string;
-}
+};
 
-interface GenreResponseProps {
+type GenreResponseProps = {
   id: number;
   name: "action" | "comedy" | "documentary" | "drama" | "horror" | "family";
   title: string;
-}
+};
 
 interface IContent {
-  selectedGenderId: number;
+  movies: MovieProps[];
+  genre: GenreResponseProps;
 }
 
-export function Content({ selectedGenderId }: IContent) {
-  const [movies, setMovies] = useState<MovieProps[]>([]);
-
-  const [selectedGenre, setSelectedGenre] = useState<GenreResponseProps>(
-    {} as GenreResponseProps
-  );
-
-  useEffect(() => {
-    api
-      .get<MovieProps[]>(`movies/?Genre_id=${selectedGenderId}`)
-      .then((response) => {
-        setMovies(response.data);
-      });
-
-    api
-      .get<GenreResponseProps>(`genres/${selectedGenderId}`)
-      .then((response) => {
-        setSelectedGenre(response.data);
-      });
-  }, [selectedGenderId]);
-
+function ContentComponent({ movies, genre }: IContent) {
   return (
     <div className="container">
       <header>
         <span className="category">
-          Categoria:<span> {selectedGenre.title}</span>
+          Categoria:<span> {genre.title}</span>
         </span>
       </header>
 
@@ -68,3 +48,7 @@ export function Content({ selectedGenderId }: IContent) {
     </div>
   );
 }
+
+export const Content = memo(ContentComponent, (prev, next) => {
+  return prev.genre.id === next.genre.id;
+});
