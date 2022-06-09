@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import { Button } from "./Button";
 
 import { api } from "../services/api";
@@ -14,7 +14,7 @@ interface ISideBar {
   onSelectGender: (id: number) => void;
 }
 
-export function SideBar({ selectedGenderId, onSelectGender }: ISideBar) {
+function SideBarComponent({ selectedGenderId, onSelectGender }: ISideBar) {
   const [genres, setGenres] = useState<GenreResponseProps[]>([]);
 
   useEffect(() => {
@@ -43,3 +43,7 @@ export function SideBar({ selectedGenderId, onSelectGender }: ISideBar) {
     </nav>
   );
 }
+
+export const SideBar = memo(SideBarComponent, (prev, next) => {
+  return prev.selectedGenderId === next.selectedGenderId;
+});
